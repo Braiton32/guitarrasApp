@@ -135,10 +135,24 @@ const carritoClicked = (e) => {
 
 const getLocalStorage = () => {
     const carritoStorage = localStorage.getItem('carrito')
-    if(carritoStorage){
-        carrito = JSON.parse(carritoStorage)
-    }else {
+    if (!carritoStorage) {
         carrito = []
+        return
+    }
+    try {
+        const parsed = JSON.parse(carritoStorage)
+        // Validar que sea un array
+        if (Array.isArray(parsed)) {
+            carrito = parsed
+        } else {
+            carrito = []
+            localStorage.removeItem('carrito')
+        }
+    } catch (err) {
+        // Si JSON.parse falla, limpiamos y evitamos romper la app
+        console.warn('carrito en localStorage inválido, se reinicia', err)
+        carrito = []
+        localStorage.removeItem('carrito')
     }
 }
 
