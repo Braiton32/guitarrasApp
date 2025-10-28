@@ -110,27 +110,40 @@ const buttonClicked = (e) => {
     }  
 }
 const carritoClicked = (e) => {
-    if(e.target.classList.contains('btn')){
-        const btn = e.target.innerText
-        const idCarrito = e.target
-            .parentElement
-            .parentElement.getAttribute('data-id')
-        const idxCarrito = carrito
-            .findIndex(g => g.id === Number(idCarrito))
+    if (!e.target.classList.contains('btn')) return
 
-        if(btn === '-') {
-            if(carrito[idxCarrito].cantidad > 1){
-                carrito[idxCarrito].cantidad--
-            }
-        } else if (btn === '+') {
-            carrito[idxCarrito].cantidad++
-        } else if(btn === 'X') {
-            carrito = carrito.filter(g => g.id !== Number(idCarrito))
-        } else if (btn === 'Vaciar Carrito'.toUpperCase()){
-            carrito = []
-        }
+    const btn = e.target.innerText.trim()
+    // Si clic en "Vaciar Carrito"
+    if (btn.toUpperCase() === 'VACIAR CARRITO') {
+        carrito = []
+        setLocalStorage()
         createCart(carrito)
+        return
     }
+
+    // Buscar la fila más cercana (puede no existir si se clickeó otro elemento)
+    const row = e.target.closest('tr')
+    if (!row) return
+
+    const idCarrito = row.getAttribute('data-id')
+    const idxCarrito = carrito.findIndex(g => Number(g.id) === Number(idCarrito))
+    if (idxCarrito === -1) return
+
+    if (btn === '-') {
+        if (carrito[idxCarrito].cantidad > 1) {
+            carrito[idxCarrito].cantidad--
+        } else {
+            // si llega a 0, eliminar item
+            carrito = carrito.filter(g => g.id !== Number(idCarrito))
+        }
+    } else if (btn === '+') {
+        carrito[idxCarrito].cantidad++
+    } else if (btn === 'X') {
+        carrito = carrito.filter(g => g.id !== Number(idCarrito))
+    }
+
+    setLocalStorage()
+    createCart(carrito)
 }
 
 const getLocalStorage = () => {
